@@ -150,8 +150,10 @@ TikTok is always updating their API endpoints but I will try to keep this librar
 
 # Examples TikTok Shop
 
+```php
 $client = new TikTok\TikTokClient($apiUrl, $app_key, $app_secret);
 $request = new TikTok\TikTokRequest('/api/shop/get_authorized_shop', 'GET');
 $request->addApiParam('key', value);
 $request->addApiParam('key', value);
-$response = $client->execute($request, $this->access_token);
+$response = $client->execute($request, $access_token);
+```
