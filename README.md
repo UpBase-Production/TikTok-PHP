@@ -147,3 +147,11 @@ Don't hesitate to create pull requests.
 
 # Disclaimer
 TikTok is always updating their API endpoints but I will try to keep this library whenever possible. I take no responsibility if you or your IP gets banned using this API. It's recommended that you use proxy.
+
+# Examples TikTok Shop
+
+$client = new TikTok\TikTokClient($apiUrl, $app_key, $app_secret);
+$request = new TikTok\TikTokRequest('/api/shop/get_authorized_shop', 'GET');
+$request->addApiParam('key', value);
+$request->addApiParam('key', value);
+$response = $client->execute($request, $this->access_token);

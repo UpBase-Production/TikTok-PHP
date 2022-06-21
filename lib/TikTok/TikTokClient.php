@@ -44,7 +44,7 @@ class TikTokClient
 	{
 		ksort($params);
 
-		$stringToBeSigned = '';
+		$stringToBeSigned = $this->secretKey;
 		$stringToBeSigned .= $apiName;
 		foreach ($params as $k => $v)
 		{
