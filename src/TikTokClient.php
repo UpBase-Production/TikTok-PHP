@@ -18,7 +18,7 @@ class TikTokClient
 
 	protected $sign = "sha256";
 
-	protected $sdkVersion = "tiki-sdk-php-20220621";
+	protected $sdkVersion = "tiktok-sdk-php-20220621";
 
 	public $logLevel;
 
