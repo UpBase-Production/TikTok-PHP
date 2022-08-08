@@ -3,6 +3,7 @@
 namespace TikTok;
 
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class TikTokClient
 {
@@ -42,14 +43,16 @@ class TikTokClient
 
 	protected function generateSign($apiName,$params)
 	{
-		ksort($params);
-
+		unset($params["sign"]);
+		unset($params["access_token"]);
 		$stringToBeSigned = $this->secretKey;
 		$stringToBeSigned .= $apiName;
+		ksort($params);
 		foreach ($params as $k => $v)
 		{
 			$stringToBeSigned .= "$k$v";
 		}
+		$stringToBeSigned.=$this->secretKey;
 		unset($k, $v);
 
 		return $this->hmac_sha256($stringToBeSigned,$this->secretKey);
@@ -120,7 +123,9 @@ class TikTokClient
 			curl_close($ch);
 			if (200 !== $httpStatusCode)
 			{
-				throw new Exception($reponse,$httpStatusCode);
+				Log::info('get api');
+				Log::info([$output]);
+				// throw new Exception($reponse,$httpStatusCode);
 			}
 		}
 
@@ -317,7 +322,7 @@ class TikTokClient
 
 	function msectime() {
 	   list($msec, $sec) = explode(' ', microtime());
-	   return $sec . '000';
+	   return $sec;
 	}
 
 	 function endWith($haystack, $needle) {   
