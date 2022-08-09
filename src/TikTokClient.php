@@ -123,9 +123,7 @@ class TikTokClient
 			curl_close($ch);
 			if (200 !== $httpStatusCode)
 			{
-				Log::info('get api');
-				Log::info([$output]);
-				// throw new Exception($reponse,$httpStatusCode);
+				throw new Exception($output,$httpStatusCode);
 			}
 		}
 
@@ -202,7 +200,6 @@ class TikTokClient
 			    'Content-Length: ' . strlen($data)
 			)
 		);
-
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
@@ -256,8 +253,15 @@ class TikTokClient
 		{
 			$sysParams["debug"] = 'true';
 		}
-
+		if($request->httpMethod == 'POST' && isset($apiParams["shop_id"]))
+		{
+			$sysParams["shop_id"] = $apiParams['shop_id'];
+		}
 		$sysParams["sign"] = $this->generateSign($request->apiName,array_merge($apiParams, $sysParams));
+		if($request->httpMethod == 'POST'){
+			$sysParams["sign"] = $this->generateSign($request->apiName, $sysParams);
+		}
+
 
 		foreach ($sysParams as $sysParamKey => $sysParamValue)
 		{
@@ -265,9 +269,7 @@ class TikTokClient
 		}
 
 		$requestUrl = substr($requestUrl, 0, -1);
-		
 		$resp = '';
-
 		try
 		{
 			if($request->httpMethod == 'POST')
