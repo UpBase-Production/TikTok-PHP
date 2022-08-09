@@ -3,6 +3,7 @@
 namespace TikTok;
 
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class TikTokClient
 {
@@ -42,14 +43,16 @@ class TikTokClient
 
 	protected function generateSign($apiName,$params)
 	{
-		ksort($params);
-
+		unset($params["sign"]);
+		unset($params["access_token"]);
 		$stringToBeSigned = $this->secretKey;
 		$stringToBeSigned .= $apiName;
+		ksort($params);
 		foreach ($params as $k => $v)
 		{
 			$stringToBeSigned .= "$k$v";
 		}
+		$stringToBeSigned.=$this->secretKey;
 		unset($k, $v);
 
 		return $this->hmac_sha256($stringToBeSigned,$this->secretKey);
@@ -120,7 +123,7 @@ class TikTokClient
 			curl_close($ch);
 			if (200 !== $httpStatusCode)
 			{
-				throw new Exception($reponse,$httpStatusCode);
+				throw new Exception($output,$httpStatusCode);
 			}
 		}
 
@@ -197,7 +200,6 @@ class TikTokClient
 			    'Content-Length: ' . strlen($data)
 			)
 		);
-
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
@@ -251,8 +253,15 @@ class TikTokClient
 		{
 			$sysParams["debug"] = 'true';
 		}
-
+		if($request->httpMethod == 'POST' && isset($apiParams["shop_id"]))
+		{
+			$sysParams["shop_id"] = $apiParams['shop_id'];
+		}
 		$sysParams["sign"] = $this->generateSign($request->apiName,array_merge($apiParams, $sysParams));
+		if($request->httpMethod == 'POST'){
+			$sysParams["sign"] = $this->generateSign($request->apiName, $sysParams);
+		}
+
 
 		foreach ($sysParams as $sysParamKey => $sysParamValue)
 		{
@@ -260,9 +269,7 @@ class TikTokClient
 		}
 
 		$requestUrl = substr($requestUrl, 0, -1);
-		
 		$resp = '';
-
 		try
 		{
 			if($request->httpMethod == 'POST')
@@ -317,7 +324,7 @@ class TikTokClient
 
 	function msectime() {
 	   list($msec, $sec) = explode(' ', microtime());
-	   return $sec . '000';
+	   return $sec;
 	}
 
 	 function endWith($haystack, $needle) {   
