@@ -35,14 +35,7 @@ class TikTokRequest
 			throw new Exception("api param key should be string");
 		}
 
-		if(is_object($value))
-		{
-			$this->udfParams[$key] = json_decode($value);
-		}
-		else
-		{
-			$this->udfParams[$key] = $value;
-		}
+		$this->udfParams[$key] = $value;
 	}
 
 	function addFileParam($key,$content,$mimeType = 'application/octet-stream')

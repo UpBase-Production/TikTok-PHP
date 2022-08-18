@@ -3,7 +3,6 @@
 namespace TikTok;
 
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class TikTokClient
 {
@@ -50,11 +49,17 @@ class TikTokClient
 		ksort($params);
 		foreach ($params as $k => $v)
 		{
-			$stringToBeSigned .= "$k$v";
+			if (is_array($v)) {
+				$stringToBeSigned .= $k.json_encode($v);
+
+			}else{
+				$stringToBeSigned .= "$k$v";
+			}
+			
 		}
+
 		$stringToBeSigned.=$this->secretKey;
 		unset($k, $v);
-
 		return $this->hmac_sha256($stringToBeSigned,$this->secretKey);
 	}
 
@@ -130,7 +135,7 @@ class TikTokClient
 		return $output;
 	}
 
-	public function curl_post($url, $postFields = null, $fileFields = null,$headerFields = null)
+	public function curl_post_put($url, $postFields = null, $fileFields = null,$headerFields = null, $method)
 	{
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -169,16 +174,6 @@ class TikTokClient
 
 		$delimiter = '-------------' . uniqid();
 		$data = '';
-		if($postFields != null)
-		{
-			foreach ($postFields as $name => $content) 
-			{
-			    $data .= "--" . $delimiter . "\r\n";
-			    $data .= 'Content-Disposition: form-data; name="' . $name . '"';
-			    $data .= "\r\n\r\n" . $content . "\r\n";
-			}
-			unset($name,$content);
-		}
 
 		if($fileFields != null)
 		{
@@ -192,16 +187,20 @@ class TikTokClient
 			unset($name,$file);
 		}
 		$data .= "--" . $delimiter . "--";
+		if ($method == 'POST') {
+			curl_setopt($ch, CURLOPT_POST, true);
+		}else{
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+		}
 
-		curl_setopt($ch, CURLOPT_POST, true);
+
 		curl_setopt($ch, CURLOPT_HTTPHEADER , 
 			array(
-				'Content-Type: multipart/form-data; boundary=' . $delimiter,
-			    'Content-Length: ' . strlen($data)
+				'Content-Type: application/json',
 			)
 		);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postFields));
 
 		$response = curl_exec($ch);
 		unset($data);
@@ -253,16 +252,16 @@ class TikTokClient
 		{
 			$sysParams["debug"] = 'true';
 		}
-		if($request->httpMethod == 'POST' && isset($apiParams["shop_id"]))
+		if(($request->httpMethod == 'POST' || $request->httpMethod == 'PUT') && isset($apiParams["shop_id"]))
 		{
 			$sysParams["shop_id"] = $apiParams['shop_id'];
 		}
 		$sysParams["sign"] = $this->generateSign($request->apiName,array_merge($apiParams, $sysParams));
-		if($request->httpMethod == 'POST'){
+		if($request->httpMethod == 'POST' || $request->httpMethod == 'PUT'){
 			$sysParams["sign"] = $this->generateSign($request->apiName, $sysParams);
 		}
 
-
+	
 		foreach ($sysParams as $sysParamKey => $sysParamValue)
 		{
 			$requestUrl .= "$sysParamKey=" . urlencode($sysParamValue) . "&";
@@ -272,9 +271,9 @@ class TikTokClient
 		$resp = '';
 		try
 		{
-			if($request->httpMethod == 'POST')
+			if($request->httpMethod == 'POST' || $request->httpMethod == 'PUT')
 			{
-				$resp = $this->curl_post($requestUrl, $apiParams, $request->fileParams,$request->headerParams);
+				$resp = $this->curl_post_put($requestUrl, $apiParams, $request->fileParams,$request->headerParams,$request->httpMethod);
 			}
 			else
 			{
