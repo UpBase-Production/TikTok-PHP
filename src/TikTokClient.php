@@ -3,7 +3,7 @@
 namespace TikTok;
 
 use Exception;
-
+use Illuminate\Support\Facades\Log;
 class TikTokClient
 {
 	public $appkey;
@@ -269,6 +269,8 @@ class TikTokClient
 
 		$requestUrl = substr($requestUrl, 0, -1);
 		$resp = '';
+		Log::info("message");
+		Log::info([$apiParams]);
 		try
 		{
 			if($request->httpMethod == 'POST' || $request->httpMethod == 'PUT')
