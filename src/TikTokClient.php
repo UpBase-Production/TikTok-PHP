@@ -3,6 +3,7 @@
 namespace TikTok;
 
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class TikTokClient
 {
@@ -190,7 +191,7 @@ class TikTokClient
 		if ($method == 'POST') {
 			curl_setopt($ch, CURLOPT_POST, true);
 		}else{
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
 		}
 
 
@@ -252,12 +253,12 @@ class TikTokClient
 		{
 			$sysParams["debug"] = 'true';
 		}
-		if(($request->httpMethod == 'POST' || $request->httpMethod == 'PUT') && isset($apiParams["shop_id"]))
+		if(($request->httpMethod != 'GET') && isset($apiParams["shop_id"]))
 		{
 			$sysParams["shop_id"] = $apiParams['shop_id'];
 		}
 		$sysParams["sign"] = $this->generateSign($request->apiName,array_merge($apiParams, $sysParams));
-		if($request->httpMethod == 'POST' || $request->httpMethod == 'PUT'){
+		if($request->httpMethod != 'GET'){
 			$sysParams["sign"] = $this->generateSign($request->apiName, $sysParams);
 		}
 
@@ -271,7 +272,7 @@ class TikTokClient
 		$resp = '';
 		try
 		{
-			if($request->httpMethod == 'POST' || $request->httpMethod == 'PUT')
+			if($request->httpMethod != 'GET')
 			{
 				$resp = $this->curl_post_put($requestUrl, $apiParams, $request->fileParams,$request->headerParams,$request->httpMethod);
 			}
