@@ -247,8 +247,6 @@ class TikTokClient
 		$requestUrl .= $request->apiName;
 		$requestUrl .= '?';
 
-		$sysParams["partner_id"] = $this->sdkVersion;
-
 		if($this->logLevel == Constants::$log_level_debug)
 		{
 			$sysParams["debug"] = 'true';
