@@ -3,7 +3,6 @@
 namespace TikTok;
 
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class TikTokClient
 {
@@ -77,7 +76,7 @@ class TikTokClient
 		{
 			$url .= "&" ."$key=" . urlencode($value);
 		}
-
+		
 	    curl_setopt($ch, CURLOPT_URL, $url);
 	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FAILONERROR, false);
@@ -104,8 +103,6 @@ class TikTokClient
 		{
 			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
 		}
-		
-		curl_setopt ( $ch, CURLOPT_USERAGENT, $this->sdkVersion );
 
 		//https ignore ssl check ?
 		if(strlen($url) > 5 && strtolower(substr($url,0,5)) == "https" ) 
@@ -164,8 +161,6 @@ class TikTokClient
 			unset($headers);
 	    }
 
-		curl_setopt ( $ch, CURLOPT_USERAGENT, $this->sdkVersion );
-
 		//https ignore ssl check ?
 		if(strlen($url) > 5 && strtolower(substr($url,0,5)) == "https" ) 
 		{
@@ -202,7 +197,6 @@ class TikTokClient
 		);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postFields));
-
 		$response = curl_exec($ch);
 		unset($data);
 		
