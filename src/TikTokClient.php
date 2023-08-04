@@ -328,4 +328,50 @@ class TikTokClient
 	    return (substr($haystack, -$length) === $needle);
 	 }
 
+    public function buildRequestParams(TikTokRequest $request, $accessToken = null)
+    {
+        $sysParams["app_key"] = $this->appkey;
+        $sysParams["sign"] = $this->sign;
+        $sysParams["timestamp"] = $this->msectime();
+        if (null != $accessToken)
+        {
+            $sysParams["access_token"] = $accessToken;
+        }
+
+        $apiParams = $request->udfParams;
+
+        $requestUrl = $this->gatewayUrl;
+
+        if($this->endWith($requestUrl,"/"))
+        {
+            $requestUrl = substr($requestUrl, 0, -1);
+        }
+
+        $requestUrl .= $request->apiName;
+        $requestUrl .= '?';
+
+        if($this->logLevel == Constants::$log_level_debug)
+        {
+            $sysParams["debug"] = 'true';
+        }
+        if(($request->httpMethod != 'GET') && isset($apiParams["shop_id"]))
+        {
+            $sysParams["shop_id"] = $apiParams['shop_id'];
+        }
+        $sysParams["sign"] = $this->generateSign($request->apiName,array_merge($apiParams, $sysParams));
+        if($request->httpMethod != 'GET'){
+            $sysParams["sign"] = $this->generateSign($request->apiName, $sysParams);
+        }
+
+
+        foreach ($sysParams as $sysParamKey => $sysParamValue)
+        {
+            $requestUrl .= "$sysParamKey=" . urlencode($sysParamValue) . "&";
+        }
+
+        $requestUrl = substr($requestUrl, 0, -1);
+
+
+        return [$requestUrl, array_merge($apiParams, $sysParams),$request->headerParams ];
+    }
 }
