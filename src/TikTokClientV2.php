@@ -60,7 +60,9 @@ class TikTokClientV2
 		}
 
 		// add body
-        $stringToBeSigned.=json_encode($bodyData);
+        if ($bodyData) {
+            $stringToBeSigned.=json_encode($bodyData);
+        }
 
 		$stringToBeSigned.=$this->secretKey;
 		unset($k, $v);
