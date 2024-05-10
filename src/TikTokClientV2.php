@@ -284,7 +284,6 @@ class TikTokClientV2
 		{
 			if($request->httpMethod == 'POST' || $request->httpMethod == 'PUT')
 			{
-			    Log::warning([$request,$requestUrl]);
 				$resp = $this->curl_post_put($requestUrl, $request->bodyData, $request->fileParams,$request->headerParams,$request->httpMethod);
 			}
 			else
