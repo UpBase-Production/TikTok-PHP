@@ -142,9 +142,6 @@ class TikTokClientV2
 	public function curl_post_put($url, $postFields = null, $fileFields = null,$headerFields = null, $method)
 	{
 		$ch = curl_init();
-        $out = fopen('php://output', 'w');
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
-        curl_setopt($ch, CURLOPT_STDERR, $out);
 
         curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_FAILONERROR, false);
