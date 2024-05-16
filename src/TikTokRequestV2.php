@@ -10,7 +10,7 @@ class TikTokRequestV2
 	public $headerParams = array();
 
 	public $udfParams = array();
-	public $bodyData = array();
+	public $bodyData = null;
 
 	public $fileParams = array();
 
