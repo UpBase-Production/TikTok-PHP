@@ -58,7 +58,7 @@ class TikTokClientV2
 		}
 
 		// add body
-		if ($bodyData) {
+		if ($bodyData !== null) {
 			$stringToBeSigned .= json_encode($bodyData);
 		}
 
