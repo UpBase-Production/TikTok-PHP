@@ -245,7 +245,7 @@ class TikTokClientV2
 		}
 		$sysParams["sign"] = $this->generateSign($request->apiName, array_merge($apiParams, $sysParams), $request->bodyData);
 		if ($request->httpMethod == 'POST' || $request->httpMethod == 'PUT') {
-			$sysParams["sign"] = $this->generateSign($request->apiName, $sysParams, $request->bodyData);
+			$sysParams["sign"] = $this->generateSign($request->apiName,  array_merge($apiParams, $sysParams), $request->bodyData);
 		}
 
 
@@ -254,6 +254,10 @@ class TikTokClientV2
 		}
 
 		$requestUrl = substr($requestUrl, 0, -1);
+
+		foreach ($apiParams as $key => $value) {
+			$requestUrl .= "&" . "$key=" . urlencode($value);
+		}
 		$resp = '';
 		try {
 			if ($request->httpMethod == 'POST' || $request->httpMethod == 'PUT') {
